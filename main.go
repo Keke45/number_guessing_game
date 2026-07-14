@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"math/rand"
+	"os"
+	"strconv"
 )
 
 func main() {
@@ -10,17 +13,24 @@ func main() {
 	secretNumber := rand.Intn(MaxNumber) + 1
 	attempts := 0
 	var guess int
-	fmt.Println("Guess a number between 1 and 100")
+	fmt.Printf("Guess a number between 1 and %d\n", MaxNumber)
+
+	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
-
 		fmt.Print("Enter your guess: ")
-		_, err := fmt.Scan(&guess)
+		scanner.Scan()
+		text := scanner.Text()
+
+		num, err := strconv.Atoi(text)
 		if err != nil {
 			fmt.Println("Invalid input. Please enter a number.")
 			continue
-		} else if guess < 1 || guess > 100 {
-			fmt.Println("Please enter a number between 1 and 100.")
+		}
+		guess = num
+
+		if guess < 1 || guess > MaxNumber {
+			fmt.Printf("Please enter a number between 1 and %d.\n", MaxNumber)
 			continue
 		}
 		attempts++
