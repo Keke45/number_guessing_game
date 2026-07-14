@@ -15,7 +15,14 @@ func main() {
 	for {
 
 		fmt.Print("Enter your guess: ")
-		fmt.Scan(&guess)
+		_, err := fmt.Scan(&guess)
+		if err != nil {
+			fmt.Println("Invalid input. Please enter a number.")
+			continue
+		} else if guess < 1 || guess > 100 {
+			fmt.Println("Please enter a number between 1 and 100.")
+			continue
+		}
 		attempts++
 
 		if guess < secretNumber {
