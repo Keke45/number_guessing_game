@@ -2,46 +2,71 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"math/rand"
 	"os"
 	"strconv"
 )
 
-func main() {
-	const MaxNumber = 100
-	secretNumber := rand.Intn(MaxNumber) + 1
-	attempts := 0
-	var guess int
-	fmt.Printf("Guess a number between 1 and %d\n", MaxNumber)
+const MaxNumber = 100
 
-	scanner := bufio.NewScanner(os.Stdin)
+func generateSecretNumber(max int) int {
+	return rand.Intn(max) + 1
+}
 
+func getGuess(scanner *bufio.Scanner, max int) (int, error) {
 	for {
 		fmt.Print("Enter your guess: ")
-		scanner.Scan()
-		text := scanner.Text()
 
-		num, err := strconv.Atoi(text)
+		if !scanner.Scan() {
+			return 0, errors.New("failed to read input")
+		}
+		text := scanner.Text()
+		guess, err := strconv.Atoi(text)
 		if err != nil {
-			fmt.Println("Invalid input. Please enter a number.")
+			fmt.Println("Please enter a valid whole number.")
 			continue
 		}
-		guess = num
+		if guess < 1 || guess > max {
+			fmt.Printf("Please enter a number between 1 and %d\n", max)
+			continue
+		}
+		return guess, nil
+	}
+}
 
-		if guess < 1 || guess > MaxNumber {
-			fmt.Printf("Please enter a number between 1 and %d.\n", MaxNumber)
+func checkGuess(secret, guess int) string {
+	switch {
+	case guess < secret:
+		return "Too low!"
+	case guess > secret:
+		return "Too high!"
+	default:
+		return "Correct!"
+	}
+}
+
+func main() {
+
+	secret := generateSecretNumber(MaxNumber)
+	attempts := 0
+	fmt.Printf("Guess a number between 1 and %d\n", MaxNumber)
+	scanner := bufio.NewScanner(os.Stdin)
+	for {
+		guess, err := getGuess(scanner, MaxNumber)
+		if err != nil {
+			fmt.Println("error:", err)
 			continue
 		}
 		attempts++
-
-		if guess < secretNumber {
-			fmt.Println("Too low!")
-		} else if guess > secretNumber {
-			fmt.Println("Too high!")
-		} else {
-			fmt.Printf("Congratulations! You guessed the number %d in %d attempts.\n", secretNumber, attempts)
+		result := checkGuess(secret, guess)
+		fmt.Println(result)
+		if result == "Correct!" {
+			fmt.Printf("You guessed the number in %d attempts!\n", attempts)
 			break
 		}
+
 	}
+
 }
