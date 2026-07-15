@@ -10,6 +10,7 @@ import (
 )
 
 const MaxNumber = 100
+const MaxAttempts = 5
 
 func generateSecretNumber(max int) int {
 	return rand.Intn(max) + 1
@@ -50,23 +51,31 @@ func checkGuess(secret, guess int) string {
 func main() {
 
 	secret := generateSecretNumber(MaxNumber)
-	attempts := 0
-	fmt.Printf("Guess a number between 1 and %d\n", MaxNumber)
 	scanner := bufio.NewScanner(os.Stdin)
-	for {
+	attempts := 0
+	won := false
+	fmt.Printf("Guess a number between 1 and %d\n", MaxNumber)
+
+	for attempts < MaxAttempts {
 		guess, err := getGuess(scanner, MaxNumber)
 		if err != nil {
 			fmt.Println("error:", err)
 			continue
 		}
 		attempts++
+
 		result := checkGuess(secret, guess)
 		fmt.Println(result)
+
 		if result == "Correct!" {
 			fmt.Printf("You guessed the number in %d attempts!\n", attempts)
+			won = true
 			break
 		}
+		fmt.Printf("Attempts remaining: %d\n", MaxAttempts-attempts)
 
 	}
-
+	if !won {
+		fmt.Printf("Game over! The number was %d.\n", secret)
+	}
 }
